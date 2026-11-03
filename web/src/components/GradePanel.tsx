@@ -7,13 +7,13 @@ export function GradePanel({ result }: { result: GradeResult }) {
   const pct = result.maxScore > 0 ? result.score / result.maxScore : 0;
 
   return (
-    <section className="rounded-lg border border-[var(--ink-line)] bg-white/55 p-5 backdrop-blur-sm">
+    <section className="rounded-lg border border-[var(--ink-line)] bg-white/55 p-4 backdrop-blur-sm sm:p-5">
       <div className="flex flex-wrap items-end justify-between gap-3">
         <div>
-          <p className="font-[family-name:var(--font-display)] text-sm uppercase tracking-[0.14em] text-[var(--ink-muted)]">
+          <p className="font-[family-name:var(--font-display)] text-xs uppercase tracking-[0.14em] text-[var(--ink-muted)]">
             Examiner feedback
           </p>
-          <h2 className="mt-1 font-[family-name:var(--font-display)] text-2xl text-[var(--ink)]">
+          <h2 className="mt-1 font-[family-name:var(--font-display)] text-xl text-[var(--ink)] sm:text-2xl">
             {result.usedMockGrader
               ? "Demo mode"
               : result.isCorrect
@@ -43,23 +43,29 @@ export function GradePanel({ result }: { result: GradeResult }) {
         />
       </div>
 
-      <p className="mt-4 font-[family-name:var(--font-body)] text-[var(--ink)]">
-        {result.feedback}
-      </p>
+      <MathText
+        text={result.feedback}
+        className="mt-4 font-[family-name:var(--font-body)] text-[var(--ink)]"
+      />
 
       {result.transcription && (
         <div className="mt-4 border-t border-[var(--ink-line)] pt-4">
           <p className="mb-2 text-xs uppercase tracking-[0.12em] text-[var(--ink-muted)]">
             What we read
           </p>
-          <MathText text={result.transcription} className="text-sm text-[var(--ink)]" />
+          <MathText
+            text={result.transcription}
+            className="text-base text-[var(--ink)] [&_.katex]:text-[1.05em]"
+          />
         </div>
       )}
 
       {result.stepNotes.length > 0 && (
-        <ul className="mt-4 list-disc space-y-1 pl-5 text-sm text-[var(--ink-soft)]">
-          {result.stepNotes.map((note) => (
-            <li key={note}>{note}</li>
+        <ul className="mt-4 list-disc space-y-2 pl-5 text-sm text-[var(--ink-soft)]">
+          {result.stepNotes.map((note, index) => (
+            <li key={`${index}-${note.slice(0, 24)}`}>
+              <MathText text={note} as="span" className="text-[var(--ink-soft)]" />
+            </li>
           ))}
         </ul>
       )}

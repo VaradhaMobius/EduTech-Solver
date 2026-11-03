@@ -147,10 +147,13 @@ export function PracticeWorkspace({
           <div className="mt-3 [&_.katex]:text-[var(--paper)]">
             <MathText text={question.solution} className="text-[var(--paper)]" />
           </div>
-          <p className="mt-4 border-t border-white/15 pt-3 text-sm text-[var(--paper-muted)]">
-            Expected final answer:{" "}
-            <span className="text-[var(--paper)]">{question.finalAnswer}</span>
-          </p>
+          <div className="mt-4 border-t border-white/15 pt-3 text-sm text-[var(--paper-muted)]">
+            <p className="mb-1">Expected final answer</p>
+            <MathText
+              text={question.finalAnswer}
+              className="text-[var(--paper)] [&_.katex]:text-[var(--paper)]"
+            />
+          </div>
         </section>
       )}
 
