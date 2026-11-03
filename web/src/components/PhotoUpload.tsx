@@ -9,9 +9,11 @@ export function PhotoUpload({
   onChange: (dataUrl: string | null) => void;
   className?: string;
 }) {
-  const inputRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
+  const galleryRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
 
   const handleFile = async (file: File | undefined) => {
     setError(null);
@@ -20,58 +22,95 @@ export function PhotoUpload({
       onChange(null);
       return;
     }
-    if (!file.type.startsWith("image/")) {
-      setError("Please upload an image (JPG, PNG, or HEIC converted to JPG).");
+
+    // Some mobile browsers omit MIME for camera captures
+    const looksImage =
+      file.type.startsWith("image/") || /\.(jpe?g|png|webp|heic|heif)$/i.test(file.name);
+    if (!looksImage && file.type !== "") {
+      setError("Please choose a photo (JPG or PNG).");
       return;
     }
-    if (file.size > 8 * 1024 * 1024) {
-      setError("Image must be under 8 MB.");
+    if (file.size > 12 * 1024 * 1024) {
+      setError("Image must be under 12 MB.");
       return;
     }
 
-    const dataUrl = await readAsDataUrl(file);
-    const resized = await resizeImage(dataUrl, 1600);
-    setPreview(resized);
-    onChange(resized);
+    setBusy(true);
+    try {
+      const dataUrl = await readAsDataUrl(file);
+      const resized = await resizeImage(dataUrl, 1600);
+      setPreview(resized);
+      onChange(resized);
+    } catch {
+      setError("Could not read that photo. Try another image.");
+      setPreview(null);
+      onChange(null);
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const clear = () => {
+    setPreview(null);
+    onChange(null);
+    if (cameraRef.current) cameraRef.current.value = "";
+    if (galleryRef.current) galleryRef.current.value = "";
   };
 
   return (
     <div className={className}>
-      <p className="mb-3 font-[family-name:var(--font-body)] text-sm text-[var(--ink-muted)]">
-        Photograph your notebook work in good light. Crop to the answer area if you can.
+      <p className="mb-3 text-sm text-[var(--ink-muted)]">
+        Snap your notebook page in good light, or pick a photo from your gallery.
       </p>
 
-      <div className="flex flex-wrap gap-2">
+      <div className="grid grid-cols-2 gap-2">
         <button
           type="button"
-          onClick={() => inputRef.current?.click()}
-          className="rounded-md bg-[var(--ink)] px-4 py-2 text-sm font-medium text-[var(--paper)] transition hover:bg-[var(--ink-soft)]"
+          onClick={() => cameraRef.current?.click()}
+          disabled={busy}
+          className="min-h-12 rounded-md bg-[var(--ink)] px-3 text-sm font-semibold text-[var(--paper)] disabled:opacity-50"
         >
-          Choose photo
+          Take photo
         </button>
-        {preview && (
-          <button
-            type="button"
-            onClick={() => {
-              setPreview(null);
-              onChange(null);
-              if (inputRef.current) inputRef.current.value = "";
-            }}
-            className="rounded-md border border-[var(--ink-line)] bg-white/70 px-4 py-2 text-sm text-[var(--ink)]"
-          >
-            Remove
-          </button>
-        )}
+        <button
+          type="button"
+          onClick={() => galleryRef.current?.click()}
+          disabled={busy}
+          className="min-h-12 rounded-md border border-[var(--ink-line)] bg-white/80 px-3 text-sm font-semibold text-[var(--ink)] disabled:opacity-50"
+        >
+          From gallery
+        </button>
       </div>
 
+      {preview && (
+        <button
+          type="button"
+          onClick={clear}
+          className="mt-2 min-h-11 w-full rounded-md border border-[var(--ink-line)] bg-white/70 text-sm text-[var(--ink)]"
+        >
+          Remove photo
+        </button>
+      )}
+
+      {/* Camera — capture attribute nudges mobile browsers to open camera */}
       <input
-        ref={inputRef}
+        ref={cameraRef}
         type="file"
         accept="image/*"
         capture="environment"
-        className="hidden"
+        className="sr-only"
         onChange={(e) => void handleFile(e.target.files?.[0])}
       />
+      {/* Gallery — no capture so the library picker opens */}
+      <input
+        ref={galleryRef}
+        type="file"
+        accept="image/*"
+        className="sr-only"
+        onChange={(e) => void handleFile(e.target.files?.[0])}
+      />
+
+      {busy && <p className="mt-3 text-sm text-[var(--ink-muted)]">Preparing photo…</p>}
 
       {error && (
         <p className="mt-3 text-sm text-[var(--accent)]" role="alert">
@@ -84,7 +123,7 @@ export function PhotoUpload({
         <img
           src={preview}
           alt="Uploaded handwritten answer"
-          className="mt-4 max-h-[420px] w-full rounded-md border border-[var(--ink-line)] object-contain bg-[var(--paper-deep)]"
+          className="mt-4 max-h-[50vh] w-full rounded-md border border-[var(--ink-line)] object-contain bg-[var(--paper-deep)]"
         />
       )}
     </div>

@@ -20,19 +20,19 @@ export default async function PracticePage({
   const chapter = CHAPTERS.find((c) => c.id === question.chapterId);
 
   return (
-    <div className="px-4 py-10 md:px-6">
-      <div className="mx-auto mb-6 max-w-6xl">
-        <Link
-          href={`/chapter/${question.chapterId}`}
-          className="text-sm text-[var(--ink-muted)] transition hover:text-[var(--accent)]"
-        >
-          ← {chapter?.name ?? "Chapter"}
-        </Link>
+    <div className="mx-auto max-w-3xl">
+      <Link
+        href={`/chapter/${question.chapterId}`}
+        className="inline-flex min-h-11 items-center text-sm text-[var(--ink-muted)]"
+      >
+        ← {chapter?.shortName ?? "Chapter"}
+      </Link>
+      <div className="mt-1">
+        <PracticeWorkspace
+          question={question}
+          chapterName={chapter?.shortName ?? "Mathematics"}
+        />
       </div>
-      <PracticeWorkspace
-        question={question}
-        chapterName={chapter?.shortName ?? "Mathematics"}
-      />
     </div>
   );
 }

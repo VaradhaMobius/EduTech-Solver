@@ -8,86 +8,72 @@ export default function HomePage() {
   );
 
   return (
-    <div>
-      <section className="relative overflow-hidden">
-        <div className="pointer-events-none absolute inset-0">
-          <svg
-            className="absolute -right-8 top-8 h-[420px] w-[420px] opacity-40 md:right-8"
-            viewBox="0 0 420 420"
-            fill="none"
-            aria-hidden
-          >
+    <div className="mx-auto max-w-3xl">
+      <section className="relative overflow-hidden pb-8 pt-6">
+        <div className="pointer-events-none absolute -right-10 top-0 h-48 w-48 opacity-30">
+          <svg viewBox="0 0 200 200" fill="none" aria-hidden className="h-full w-full">
             <path
               className="hero-ink-path"
-              d="M40 300 C120 80, 220 360, 300 140 S380 80, 400 120"
+              d="M20 150 C60 40, 110 170, 160 70"
               stroke="#14233a"
               strokeWidth="3"
               strokeLinecap="round"
             />
-            <path
-              className="hero-ink-path"
-              style={{ animationDelay: "0.25s" }}
-              d="M70 340 C150 200, 210 280, 280 220"
-              stroke="#c45c26"
-              strokeWidth="2"
-              strokeLinecap="round"
-              opacity="0.7"
-            />
           </svg>
         </div>
 
-        <div className="relative mx-auto flex min-h-[78vh] max-w-6xl flex-col justify-center px-4 py-16 md:px-6">
-          <p className="animate-fade-up font-[family-name:var(--font-display)] text-sm uppercase tracking-[0.22em] text-[var(--accent)]">
-            CBSE Class 12 · Mathematics
-          </p>
-          <h1 className="animate-fade-up-delay mt-4 max-w-3xl font-[family-name:var(--font-display)] text-5xl font-semibold leading-[1.05] tracking-tight text-[var(--ink)] md:text-7xl">
-            InkMark
-          </h1>
-          <p className="animate-fade-up-delay2 mt-5 max-w-xl text-lg text-[var(--ink-soft)] md:text-xl">
-            Solve on a digital answer sheet — or snap your notebook. We read your
-            handwriting and mark it against the official solution.
-          </p>
-          <div className="animate-fade-up-delay2 mt-8 flex flex-wrap gap-3">
-            <Link
-              href="/#chapters"
-              className="rounded-md bg-[var(--ink)] px-5 py-3 text-sm font-semibold text-[var(--paper)] transition hover:bg-[var(--ink-soft)]"
-            >
-              Browse chapters
-            </Link>
-            <Link
-              href="/practice/in-01"
-              className="rounded-md border border-[var(--ink-line)] bg-white/60 px-5 py-3 text-sm font-semibold text-[var(--ink)] backdrop-blur-sm transition hover:bg-white"
-            >
-              Try an integrals question
-            </Link>
-          </div>
+        <p className="animate-fade-up font-[family-name:var(--font-display)] text-xs uppercase tracking-[0.2em] text-[var(--accent)]">
+          CBSE Class 12 · Maths
+        </p>
+        <h1 className="animate-fade-up-delay mt-2 font-[family-name:var(--font-display)] text-4xl font-semibold leading-[1.05] tracking-tight text-[var(--ink)] sm:text-5xl">
+          InkMark
+        </h1>
+        <p className="animate-fade-up-delay2 mt-3 max-w-md text-base text-[var(--ink-soft)]">
+          Write answers with your finger — or snap your notebook. We mark your handwriting
+          against the official solution.
+        </p>
+        <div className="animate-fade-up-delay2 mt-6 flex flex-col gap-2 sm:flex-row">
+          <Link
+            href="/#chapters"
+            className="inline-flex min-h-12 items-center justify-center rounded-md bg-[var(--ink)] px-5 text-sm font-semibold text-[var(--paper)]"
+          >
+            Browse chapters
+          </Link>
+          <Link
+            href="/practice/in-01"
+            className="inline-flex min-h-12 items-center justify-center rounded-md border border-[var(--ink-line)] bg-white/70 px-5 text-sm font-semibold text-[var(--ink)]"
+          >
+            Try an integrals question
+          </Link>
         </div>
       </section>
 
-      <section id="chapters" className="mx-auto max-w-6xl px-4 pb-20 md:px-6">
-        <div className="mb-8 max-w-2xl">
-          <h2 className="font-[family-name:var(--font-display)] text-3xl text-[var(--ink)]">
-            Question bank
-          </h2>
-          <p className="mt-2 text-[var(--ink-muted)]">
-            Seed set across the CBSE Class 12 Maths syllabus. Each question includes a
-            worked solution you can reveal after attempting.
-          </p>
-        </div>
+      <section id="chapters" className="pb-8 pt-2">
+        <h2 className="font-[family-name:var(--font-display)] text-2xl text-[var(--ink)]">
+          Question bank
+        </h2>
+        <p className="mt-1 text-sm text-[var(--ink-muted)]">
+          Tap a chapter, then practice on the answer sheet.
+        </p>
 
-        <ul className="grid gap-x-8 gap-y-6 sm:grid-cols-2 lg:grid-cols-3">
+        <ul className="mt-5 divide-y divide-[var(--ink-line)]">
           {CHAPTERS.map((chapter) => (
-            <li key={chapter.id} className="border-t border-[var(--ink-line)] pt-4">
-              <Link href={`/chapter/${chapter.id}`} className="group block">
-                <div className="flex items-baseline justify-between gap-3">
-                  <h3 className="font-[family-name:var(--font-display)] text-xl text-[var(--ink)] transition group-hover:text-[var(--accent)]">
+            <li key={chapter.id}>
+              <Link
+                href={`/chapter/${chapter.id}`}
+                className="flex min-h-14 items-center justify-between gap-3 py-3 active:bg-white/40"
+              >
+                <div className="min-w-0">
+                  <h3 className="font-[family-name:var(--font-display)] text-lg text-[var(--ink)]">
                     {chapter.name}
                   </h3>
-                  <span className="shrink-0 text-xs tabular-nums text-[var(--ink-muted)]">
-                    {counts[chapter.id]} Q
-                  </span>
+                  <p className="mt-0.5 truncate text-sm text-[var(--ink-muted)]">
+                    {chapter.description}
+                  </p>
                 </div>
-                <p className="mt-2 text-sm text-[var(--ink-muted)]">{chapter.description}</p>
+                <span className="shrink-0 text-xs tabular-nums text-[var(--ink-muted)]">
+                  {counts[chapter.id]} Q →
+                </span>
               </Link>
             </li>
           ))}
