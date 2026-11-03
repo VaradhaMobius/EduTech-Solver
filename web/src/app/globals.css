@@ -1,0 +1,89 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --paper: #e8eef4;
+  --paper-deep: #d5e0eb;
+  --ink: #14233a;
+  --ink-soft: #2c4060;
+  --ink-muted: #5a6f8c;
+  --ink-line: #b7c5d6;
+  --accent: #c45c26;
+  --paper-muted: #c5d0dc;
+  --background: var(--paper);
+  --foreground: var(--ink);
+}
+
+body {
+  color: var(--foreground);
+  background: var(--background);
+  font-family: var(--font-body), "Source Sans 3", sans-serif;
+}
+
+.paper-atmosphere {
+  background:
+    radial-gradient(1200px 600px at 12% -10%, rgba(196, 92, 38, 0.12), transparent 55%),
+    radial-gradient(900px 500px at 90% 0%, rgba(44, 64, 96, 0.14), transparent 50%),
+    linear-gradient(180deg, #eef3f8 0%, #e2eaf2 45%, #dce6f0 100%);
+  background-attachment: fixed;
+}
+
+.paper-atmosphere::before {
+  content: "";
+  pointer-events: none;
+  position: fixed;
+  inset: 0;
+  opacity: 0.35;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.45'/%3E%3C/svg%3E");
+  mix-blend-mode: soft-light;
+  z-index: 0;
+}
+
+.paper-atmosphere > * {
+  position: relative;
+  z-index: 1;
+}
+
+.math-text .katex-display {
+  margin: 0.75rem 0;
+  overflow-x: auto;
+  overflow-y: hidden;
+}
+
+@keyframes fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-up {
+  animation: fade-up 0.55s ease-out both;
+}
+
+.animate-fade-up-delay {
+  animation: fade-up 0.55s ease-out 0.12s both;
+}
+
+.animate-fade-up-delay2 {
+  animation: fade-up 0.55s ease-out 0.22s both;
+}
+
+@keyframes ink-draw {
+  from {
+    stroke-dashoffset: 240;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+.hero-ink-path {
+  stroke-dasharray: 240;
+  animation: ink-draw 1.4s ease-out forwards;
+}
