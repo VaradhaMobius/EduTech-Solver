@@ -43,3 +43,23 @@ web/
 Auto-grading uses the question prompt, official final answer, worked solution,
 and the submitted image. Scores support partial credit. Treat results as a
 strong practice signal — not a substitute for a human examiner on edge cases.
+
+## Vercel + API key
+
+1. Set **Root Directory** to `web`
+2. Add `OPENAI_API_KEY` under Project → Settings → Environment Variables
+   (Production / Preview). Do **not** use a `NEXT_PUBLIC_` prefix.
+3. Redeploy after adding the key.
+
+## Security defaults
+
+`POST /api/grade` includes:
+
+- Per-IP rate limits (default **8/min**, **40/hour**; override via env)
+- Same-origin checks in production
+- Image MIME/size validation (PNG/JPEG/WebP, ~3MB)
+- Security headers + CSP via middleware
+- OpenAI timeouts and sanitized production error messages
+
+Optional durable rate limiting across serverless instances: set
+`UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN`.

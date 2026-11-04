@@ -48,21 +48,45 @@ Submission mode: ${mode === "canvas" ? "digital handwriting canvas" : "photo of 
 
 Grade the student's handwritten work in the image.`;
 
-  const response = await client.chat.completions.create({
-    model,
-    temperature: 0.2,
-    response_format: { type: "json_object" },
-    messages: [
-      { role: "system", content: SYSTEM_PROMPT },
+  const timeoutMs = Number(process.env.GRADE_TIMEOUT_MS ?? 45_000);
+
+  let response;
+  try {
+    response = await client.chat.completions.create(
       {
-        role: "user",
-        content: [
-          { type: "text", text: userText },
-          { type: "image_url", image_url: { url: imageDataUrl } },
+        model,
+        temperature: 0.2,
+        response_format: { type: "json_object" },
+        max_tokens: 1200,
+        messages: [
+          { role: "system", content: SYSTEM_PROMPT },
+          {
+            role: "user",
+            content: [
+              { type: "text", text: userText },
+              {
+                type: "image_url",
+                image_url: { url: imageDataUrl, detail: "low" },
+              },
+            ],
+          },
         ],
       },
-    ],
-  });
+      { timeout: Number.isFinite(timeoutMs) ? timeoutMs : 45_000 },
+    );
+  } catch (err) {
+    const message = err instanceof Error ? err.message.toLowerCase() : "";
+    const name = err instanceof Error ? err.name : "";
+    if (
+      name === "TimeoutError" ||
+      name === "AbortError" ||
+      message.includes("timeout") ||
+      message.includes("timed out")
+    ) {
+      throw new Error("Grading timed out. Please try again with a clearer crop.");
+    }
+    throw new Error("Upstream grading service unavailable.");
+  }
 
   const raw = response.choices[0]?.message?.content ?? "{}";
   let parsed: Partial<GradeResult>;
@@ -86,10 +110,10 @@ Grade the student's handwritten work in the image.`;
     confidence: clampNumber(parsed.confidence ?? 0.5, 0, 1),
     score,
     maxScore: question.marks,
-    transcription: String(parsed.transcription ?? ""),
-    feedback: String(parsed.feedback ?? ""),
+    transcription: truncate(String(parsed.transcription ?? ""), 4000),
+    feedback: truncate(String(parsed.feedback ?? ""), 2000),
     stepNotes: Array.isArray(parsed.stepNotes)
-      ? parsed.stepNotes.map(String)
+      ? parsed.stepNotes.map((n) => truncate(String(n), 500)).slice(0, 12)
       : [],
     usedMockGrader: false,
   };
@@ -105,7 +129,7 @@ function mockGrade(question: Question, mode: SubmissionMode): GradeResult {
       "(Demo mode) Set OPENAI_API_KEY to enable vision grading of your handwriting.",
     feedback: `Your ${mode} submission was saved for review. Without an API key, auto-grading is disabled — you can still reveal the official solution and self-check.`,
     stepNotes: [
-      "Add OPENAI_API_KEY to web/.env.local",
+      "Set OPENAI_API_KEY in Vercel Environment Variables (or web/.env.local locally)",
       "Optional: set OPENAI_VISION_MODEL (default gpt-4o)",
       "Re-submit the same image to get a live grade",
     ],
@@ -116,4 +140,9 @@ function mockGrade(question: Question, mode: SubmissionMode): GradeResult {
 function clampNumber(value: number, min: number, max: number): number {
   if (Number.isNaN(value)) return min;
   return Math.min(max, Math.max(min, value));
+}
+
+function truncate(value: string, max: number): string {
+  if (value.length <= max) return value;
+  return `${value.slice(0, max - 1)}…`;
 }
