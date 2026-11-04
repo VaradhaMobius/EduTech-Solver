@@ -68,9 +68,18 @@ export function PracticeWorkspace({
           mode,
         }),
       });
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (!res.ok) {
-        throw new Error(data.error || "Grading failed");
+        if (res.status === 429) {
+          throw new Error(
+            typeof data.error === "string"
+              ? data.error
+              : "Too many attempts. Please wait a bit and try again.",
+          );
+        }
+        throw new Error(
+          typeof data.error === "string" ? data.error : "Grading failed",
+        );
       }
       setResult(data as GradeResult);
     } catch (err) {
