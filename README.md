@@ -48,8 +48,11 @@ strong practice signal — not a substitute for a human examiner on edge cases.
 
 1. Set **Root Directory** to `web`
 2. Add `OPENAI_API_KEY` under Project → Settings → Environment Variables
-   (Production / Preview). Do **not** use a `NEXT_PUBLIC_` prefix.
-3. Redeploy after adding the key.
+   - Enable **Production** (and Preview if you want)
+   - Do **not** use a `NEXT_PUBLIC_` prefix
+3. **Redeploy** after saving the variable (Deployments → … → Redeploy).
+   Adding a key alone does not update an already-built deployment.
+4. Confirm: open `/api/health` — you want `"openaiConfigured": true`.
 
 ## Security defaults
 

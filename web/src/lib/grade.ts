@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { getOpenAIApiKey, getOpenAIVisionModel } from "@/lib/env";
 import type { GradeResult, Question, SubmissionMode } from "@/lib/types";
 
 const SYSTEM_PROMPT = `You are an expert CBSE Class 12 Mathematics examiner.
@@ -26,14 +27,14 @@ export async function gradeSubmission(params: {
   mode: SubmissionMode;
 }): Promise<GradeResult> {
   const { question, imageDataUrl, mode } = params;
-  const apiKey = process.env.OPENAI_API_KEY;
+  const apiKey = getOpenAIApiKey();
 
   if (!apiKey) {
     return mockGrade(question, mode);
   }
 
   const client = new OpenAI({ apiKey });
-  const model = process.env.OPENAI_VISION_MODEL || "gpt-4o";
+  const model = getOpenAIVisionModel();
 
   const userText = `Question (${question.marks} marks, CBSE Class 12):
 ${question.prompt}
@@ -48,7 +49,7 @@ Submission mode: ${mode === "canvas" ? "digital handwriting canvas" : "photo of 
 
 Grade the student's handwritten work in the image.`;
 
-  const timeoutMs = Number(process.env.GRADE_TIMEOUT_MS ?? 45_000);
+  const timeoutMs = Number(process.env["GRADE_TIMEOUT_MS"] ?? 45_000);
 
   let response;
   try {
@@ -129,9 +130,9 @@ function mockGrade(question: Question, mode: SubmissionMode): GradeResult {
       "(Demo mode) Set OPENAI_API_KEY to enable vision grading of your handwriting.",
     feedback: `Your ${mode} submission was saved for review. Without an API key, auto-grading is disabled — you can still reveal the official solution and self-check.`,
     stepNotes: [
-      "Set OPENAI_API_KEY in Vercel Environment Variables (or web/.env.local locally)",
-      "Optional: set OPENAI_VISION_MODEL (default gpt-4o)",
-      "Re-submit the same image to get a live grade",
+      "Vercel → Settings → Environment Variables → OPENAI_API_KEY (Production checked)",
+      "Redeploy after saving the key, then check /api/health for openaiConfigured: true",
+      "Optional: OPENAI_VISION_MODEL (default gpt-4o)",
     ],
     usedMockGrader: true,
   };
